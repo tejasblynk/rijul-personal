@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rijul Kishore | Portfolio</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f4f7f6;
+            --text: #333;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        h1, h2 { color: var(--primary); }
+        header h1 { color: white; margin: 0; }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-box {
+            border-left: 4px solid var(--accent);
+            padding-left: 1rem;
+            background: #eef2f3;
+            padding: 10px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .context-placeholder {
+            border: 2px dashed var(--accent);
+            padding: 2rem;
+            text-align: center;
+            background: #f0f8ff;
+            color: #555;
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.9rem;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Rijul Kishore</h1>
+    <p>Student @ Rani Laxmi Bai Public School, Jhansi</p>
+</header>
+
+<div class="container">
+    
+    <section class="card">
+        <h2>About Me</h2>
+        <div class="details-grid">
+            <div class="info-box">
+                <strong>Current Grade:</strong><br> 7th Standard
+            </div>
+            <div class="info-box">
+                <strong>Birthday:</strong><br> February 2, 2013
+            </div>
+            <div class="info-box">
+                <strong>Location:</strong><br> Jhansi, Uttar Pradesh
+            </div>
+            <div class="info-box">
+                <strong>Age:</strong><br> 12 Years Old
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Personal Interests</h2>
+        <p><em>Waiting for Rijul to share his hobbies and passions...</em></p>
+    </section>
+
+    <section class="card">
+        <h2>Additional Information</h2>
+        <div class="context-placeholder">
+            [Space reserved for the context you will share later]
+        </div>
+    </section>
+
+</div>
+
+<footer>
+    <p>&copy; 2026 Rijul Kishore. Built for GitHub Pages.</p>
+</footer>
+
+</body>
+</html>
