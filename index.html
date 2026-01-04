@@ -3,269 +3,343 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rijul Kishore | Student Portfolio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Rijul Kishore | Academic Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --primary: #0f172a; /* Deep Navy */
-            --secondary: #334155; /* Slate */
-            --accent: #3b82f6; /* Bright Blue */
-            --bg: #f8fafc; /* Very Light Grey */
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
+            /* Complex Dark Theme Palette */
+            --bg-main: #0a0e17;
+            --bg-secondary: #111827;
+            --accent-blue: #3b82f6;
+            --accent-teal: #14b8a6;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(30, 41, 59, 0.7);
         }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            line-height: 1.7;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(20, 184, 166, 0.08) 0%, transparent 25%);
+            background-attachment: fixed;
         }
 
-        /* --- Hero Section --- */
-        header {
-            background: linear-gradient(135deg, var(--primary) 0%, #1e293b 100%);
-            color: white;
-            padding: 4rem 2rem;
-            text-align: center;
-            border-bottom: 6px solid var(--accent);
-        }
-
-        header h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            letter-spacing: -1px;
-            margin-bottom: 0.5rem;
-        }
-
-        header p {
-            font-size: 1.2rem;
-            color: #cbd5e1;
-            font-weight: 300;
-        }
-
-        /* --- Layout --- */
-        .container {
-            max-width: 900px;
-            margin: -3rem auto 2rem; /* Pulls content up into the header */
-            padding: 0 20px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .card {
-            background: var(--card-bg);
+        /* --- Reusable "Glass" Card Style --- */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
             padding: 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-            border: 1px solid #e2e8f0;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, border-color 0.3s ease;
         }
 
+        .glass-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+
+        /* --- Typography & Utilities --- */
+        h1, h2, h3 { letter-spacing: -0.02em; }
         h2 {
-            color: var(--primary);
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 0.5rem;
+            font-size: 1.8rem;
             margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-        }
-
-        /* --- Profile Grid --- */
-        .profile-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .profile-item {
-            display: flex;
-            align-items: flex-start;
-        }
-
-        .profile-icon {
-            background: #eff6ff;
-            color: var(--accent);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            font-size: 1.1rem;
-        }
-
-        .profile-data strong {
-            display: block;
-            color: var(--secondary);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .profile-data span {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        /* --- Abstract Section --- */
-        .abstract-content {
-            font-style: italic;
-            color: var(--secondary);
-            border-left: 4px solid var(--accent);
-            padding-left: 1.5rem;
-            background: #f1f5f9;
-            padding: 1.5rem;
-            border-radius: 0 8px 8px 0;
-        }
-
-        /* --- Hobbies Section --- */
-        .hobbies-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .hobby-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 1.5rem;
-            border-radius: 12px;
-            transition: transform 0.2s;
-        }
-
-        .hobby-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent);
-        }
-
-        .hobby-card h3 {
-            color: var(--primary);
-            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-
-        /* --- Placeholder Section --- */
-        .dynamic-content-area {
-            border: 2px dashed #cbd5e1;
-            background: #f8fafc;
-            padding: 3rem;
-            text-align: center;
-            border-radius: 12px;
-            color: var(--text-muted);
+        h2::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 30px;
+            background: linear-gradient(to bottom, var(--accent-blue), var(--accent-teal));
+            border-radius: 4px;
         }
-        
-        .dynamic-content-area i {
-            font-size: 2rem;
+        .text-gradient {
+            background: linear-gradient(to right, var(--accent-blue), var(--accent-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .accent-icon { color: var(--accent-blue); margin-right: 8px; }
+
+        /* --- Hero Section (Complex Layering) --- */
+        .hero-section {
+            position: relative;
+            height: 70vh;
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero-bg-img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            /* Placeholder Image: Abstract library/knowledge */
+            background-image: url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=2228&q=80');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.4) blur(3px);
+            z-index: -1;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 1;
+            max-width: 800px;
+            padding: 2rem;
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 1.1;
             margin-bottom: 1rem;
-            color: var(--accent);
         }
 
-        footer {
-            text-align: center;
-            padding: 3rem 0;
-            color: var(--text-muted);
+        .hero-pill {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 600;
             font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--accent-blue);
         }
 
-        /* Responsive Tweaks */
-        @media (max-width: 600px) {
-            header h1 { font-size: 2.2rem; }
-            .container { margin-top: 1rem; }
+        /* --- Main Grid Layout --- */
+        .main-container {
+            max-width: 1100px;
+            margin: -80px auto 4rem; /* Overlap the hero */
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+        }
+
+        /* --- Profile Section (Split Layout) --- */
+        .profile-split {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .profile-image-container {
+            position: relative;
+            height: 100%;
+            min-height: 300px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid var(--glass-border);
+        }
+
+        .profile-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+             /* Placeholder Image: Student/generic portrait */
+            src: url('https://images.unsplash.com/photo-1519452635265-7b1f9f55f53d?ixlib=rb-4.0.3&auto=format&fit=crop&w=987&q=80');
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        .info-item h4 { color: var(--text-secondary); font-weight: 500; font-size: 0.9rem; }
+        .info-item p { font-size: 1.1rem; font-weight: 600; }
+
+        /* --- Abstract Banner --- */
+        .abstract-banner {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(20, 184, 166, 0.1));
+            padding: 3rem;
+            position: relative;
+        }
+        .abstract-quote {
+            font-size: 1.25rem;
+            font-style: italic;
+            color: var(--text-primary);
+            text-align: center;
+            max-width: 90%;
+            margin: auto;
+        }
+        .fa-quote-left { color: var(--accent-blue); opacity: 0.5; font-size: 2rem; }
+
+        /* --- Hobbies Section (Visual Cards) --- */
+        .hobbies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+
+        .hobby-visual-card {
+            position: relative;
+            height: 300px;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            group: 
+        }
+
+        .hobby-bg {
+            position: absolute;
+            top:0; left:0; width:100%; height:100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.5s ease;
+        }
+        .hobby-visual-card:hover .hobby-bg { transform: scale(1.1); }
+
+        .hobby-overlay {
+            position: absolute;
+            top:0; left:0; width:100%; height:100%;
+            background: linear-gradient(to top, #0a0e17 10%, rgba(10,14,23,0.6) 60%, transparent);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2rem;
+        }
+        .hobby-overlay h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .hobby-overlay p { color: var(--text-secondary); font-size: 0.95rem; }
+
+        /* --- Terminal Context Placeholder --- */
+        .terminal-placeholder {
+            background: #0a0e17;
+            border: 1px solid #334155;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 0;
+            overflow: hidden;
+        }
+        .terminal-header {
+            background: #1e293b;
+            padding: 10px 20px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid #334155;
+        }
+        .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-red { background: #ef4444; } .dot-yellow { background: #f59e0b; } .dot-green { background: #10b981; }
+        .terminal-body {
+            padding: 2rem;
+            color: var(--accent-teal);
+        }
+        .blink-cursor::after { content: '|'; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content h1 { font-size: 2.5rem; }
+            .profile-split { grid-template-columns: 1fr; }
+            .profile-image-container { min-height: 200px; }
+            .hobbies-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="header-content">
-        <h1>Rijul Kishore</h1>
-        <p>Student • Learner • Explorer</p>
-    </div>
-</header>
+    <header class="hero-section">
+        <div class="hero-bg-img"></div>
+        <div class="hero-content">
+            <span class="hero-pill">Rani Laxmi Bai Public School • Jhansi</span>
+            <h1>Rijul <span class="text-gradient">Kishore</span></h1>
+            <p style="font-size: 1.2rem; color: var(--text-secondary);">Exploring the intersection of knowledge and the physical world.</p>
+        </div>
+    </header>
 
-<div class="container">
+    <main class="main-container">
 
-    <section class="card">
-        <h2>Student Profile</h2>
-        <div class="profile-grid">
-            <div class="profile-item">
-                <div class="profile-icon"><i class="fas fa-school"></i></div>
-                <div class="profile-data">
-                    <strong>Institution</strong>
-                    <span>Rani Laxmi Bai Public School</span>
+        <section class="glass-card profile-split">
+            <div class="profile-image-container">
+                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=1740&q=80" alt="Student Profile Placeholder">
+            </div>
+            <div class="profile-details">
+                <h2><i class="fas fa-user-graduate accent-icon"></i> Academic Profile</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4><i class="fas fa-school accent-icon"></i> Institution</h4>
+                        <p>RLB Public School</p>
+                    </div>
+                    <div class="info-item">
+                        <h4><i class="fas fa-book accent-icon"></i> Current Grade</h4>
+                        <p>7th Standard</p>
+                    </div>
+                    <div class="info-item">
+                        <h4><i class="fas fa-birthday-cake accent-icon"></i> Date of Birth</h4>
+                        <p>Feb 2, 2013 (Age 12)</p>
+                    </div>
+                    <div class="info-item">
+                        <h4><i class="fas fa-map-marker-alt accent-icon"></i> Location</h4>
+                        <p>Jhansi, UP, India</p>
+                    </div>
                 </div>
             </div>
-            <div class="profile-item">
-                <div class="profile-icon"><i class="fas fa-graduation-cap"></i></div>
-                <div class="profile-data">
-                    <strong>Standard</strong>
-                    <span>7th Grade</span>
+        </section>
+
+        <section class="glass-card abstract-banner">
+            <div class="abstract-quote">
+                <i class="fas fa-quote-left"></i><br>
+                The pursuit of knowledge is a dual process. Literature provides the theoretical framework—the wisdom of the past. Exploration allows for the practical observation of that knowledge in motion. This portfolio represents a commitment to bridging that gap.
+            </div>
+        </section>
+
+        <section>
+             <h2 style="margin-left: 1rem;"><i class="fas fa-compass accent-icon"></i> Core Interests</h2>
+            <div class="hobbies-grid">
+                <div class="hobby-visual-card">
+                    <div class="hobby-bg" style="background-image: url('https://images.unsplash.com/photo-1495446815901-a7297e633e8d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1740&q=80');"></div>
+                    <div class="hobby-overlay">
+                        <h3>Literary Exploration</h3>
+                        <p>Analyzing diverse genres to develop perspective, critical thinking, and imagination through the written word.</p>
+                    </div>
+                </div>
+                <div class="hobby-visual-card">
+                    <div class="hobby-bg" style="background-image: url('https://images.unsplash.com/photo-1501555088652-021faa106b9b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1746&q=80');"></div>
+                    <div class="hobby-overlay">
+                        <h3>Physical Discovery</h3>
+                        <p>Engaging with geography, local history, and the environment for a hands-on approach to learning.</p>
+                    </div>
                 </div>
             </div>
-            <div class="profile-item">
-                <div class="profile-icon"><i class="fas fa-birthday-cake"></i></div>
-                <div class="profile-data">
-                    <strong>Date of Birth</strong>
-                    <span>February 2, 2013</span>
+        </section>
+
+        <section class="glass-card terminal-placeholder" id="context-area">
+            <div class="terminal-header">
+                <div class="terminal-dot dot-red"></div>
+                <div class="terminal-dot dot-yellow"></div>
+                <div class="terminal-dot dot-green"></div>
+                <span style="font-size: 0.8rem; color: #94a3b8; margin-left: 10px;">rijul@portfolio:~/context/</span>
+            </div>
+            <div class="terminal-body">
+                <p>$ status --check</p>
+                <p style="color: var(--text-secondary);">> Awaiting input signal...</p>
+                <p>$ Awaiting user context data... <span class="blink-cursor"></span></p>
                 </div>
-            </div>
-            <div class="profile-item">
-                <div class="profile-icon"><i class="fas fa-map-marker-alt"></i></div>
-                <div class="profile-data">
-                    <strong>Location</strong>
-                    <span>Jhansi, Uttar Pradesh</span>
-                </div>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="card">
-        <h2>Philosophy of Learning</h2>
-        <div class="abstract-content">
-            <p>"The pursuit of knowledge is not confined to the classroom. For Rijul, the world is a vast library where every experience serves as a new page. The synergy between <strong>reading books</strong> and <strong>exploring the physical world</strong> creates a powerful cycle of continuous learning. While literature provides the theoretical framework and wisdom of the past, exploration allows for the practical observation of that knowledge in motion. This portfolio represents the journey of a curious mind, dedicated to academic excellence and the broader quest for understanding."</p>
-        </div>
-    </section>
+    </main>
 
-    <section class="card">
-        <h2>Areas of Interest</h2>
-        <div class="hobbies-grid">
-            <div class="hobby-card">
-                <h3><i class="fas fa-book-open" style="color: #3b82f6;"></i> Literary Exploration</h3>
-                <p>Developing analytical skills and imagination through diverse genres of books. Focus on gaining perspective through the written word.</p>
-            </div>
-            <div class="hobby-card">
-                <h3><i class="fas fa-compass" style="color: #10b981;"></i> World Exploration</h3>
-                <p>Engaging with the environment to understand local history, geography, and culture. A hands-on approach to learning.</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="card" id="dynamic-context">
-        <h2>Upcoming Projects & Context</h2>
-        <div class="dynamic-content-area">
-            <i class="fas fa-layer-group"></i>
-            <h3>Additional Context Loading...</h3>
-            <p>This space is reserved for specific project details, academic achievements, or further context regarding Rijul's current studies.</p>
-        </div>
-    </section>
-
-</div>
-
-<footer>
-    <p>&copy; 2026 Rijul Kishore. All Rights Reserved.<br>Hosted on GitHub Pages.</p>
-</footer>
+    <footer style="text-align: center; padding: 3rem; color: var(--text-secondary); font-size: 0.9rem;">
+        <p>© 2026 Rijul Kishore. Engineered for GitHub Pages.</p>
+    </footer>
 
 </body>
 </html>
