@@ -3,540 +3,763 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rijul Kishore | Future Astronomer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <title>RIJUL.OS | Tactical Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600&family=Inter:wght@300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* ==========================================================================
+           CORE VARIABLES & THEME
+           ========================================================================== */
         :root {
-            --bg-deep: #050507;
-            --bg-panel: rgba(20, 20, 35, 0.4);
-            --bg-panel-hover: rgba(30, 30, 50, 0.6);
-            --accent-cyan: #00f3ff;
-            --accent-purple: #bc13fe;
-            --text-main: #ffffff;
-            --text-muted: #a0a0c0;
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --glow-cyan: rgba(0, 243, 255, 0.3);
-            --glow-purple: rgba(188, 19, 254, 0.3);
+            --bg-base: #030305;
+            --bg-hud: rgba(10, 12, 20, 0.4);
+            --bg-card: rgba(15, 18, 30, 0.5);
+            --cyan-core: #00f3ff;
+            --cyan-glow: rgba(0, 243, 255, 0.5);
+            --purple-core: #bc13fe;
+            --purple-glow: rgba(188, 19, 254, 0.5);
+            --text-main: #e2e8f0;
+            --text-dim: #8492a6;
+            --grid-color: rgba(0, 243, 255, 0.03);
+            --border-glass: rgba(0, 243, 255, 0.15);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; /* Hide default cursor */ }
         
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-deep);
+            background-color: var(--bg-base);
             color: var(--text-main);
-            overflow-x: hidden;
+            overflow: hidden; /* Prevent scrolling of body, handle inside main */
             height: 100vh;
             display: flex;
+            user-select: none;
         }
 
-        /* --- Scrollbar --- */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-deep); }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
+        ::selection { background: var(--cyan-glow); color: #fff; }
 
-        /* --- Animated Star Background --- */
-        .stars {
+        /* ==========================================================================
+           CUSTOM CURSOR
+           ========================================================================== */
+        #cursor-dot, #cursor-ring {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000 url('http://www.script-tutorials.com/demos/360/images/stars.png') repeat top center;
-            z-index: -2;
-            opacity: 0.6;
-            animation: move-twink-back 150s linear infinite;
-        }
-        @keyframes move-twink-back { from {background-position:0 0;} to {background-position:-10000px 5000px;} }
-
-        /* --- 115 Dynamic Particles Container --- */
-        #particle-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
+            top: 0; left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 99999;
             pointer-events: none;
         }
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0;
-            animation: floatParticle ease-in-out infinite alternate;
+        #cursor-dot {
+            width: 6px; height: 6px;
+            background: var(--cyan-core);
+            box-shadow: 0 0 10px var(--cyan-core);
+            transition: width 0.2s, height 0.2s;
         }
-        @keyframes floatParticle {
-            0% { transform: translateY(0px) scale(0.8); opacity: 0.1; }
-            50% { opacity: 0.8; }
-            100% { transform: translateY(-30px) scale(1.2); opacity: 0.1; }
+        #cursor-ring {
+            width: 40px; height: 40px;
+            border: 1px solid var(--border-glass);
+            transition: transform 0.1s ease-out, width 0.2s, height 0.2s, border-color 0.2s;
+        }
+        .cursor-hover #cursor-dot { transform: translate(-50%, -50%) scale(1.5); background: var(--purple-core); box-shadow: 0 0 15px var(--purple-core); }
+        .cursor-hover #cursor-ring { width: 60px; height: 60px; border-color: var(--purple-glow); background: rgba(188, 19, 254, 0.05); }
+
+        /* ==========================================================================
+           INTERACTIVE BACKGROUND (CANVAS + GRID)
+           ========================================================================== */
+        #starfield {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -2;
+        }
+        .hud-grid {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            perspective: 1000px;
+            transform-origin: center top;
+            animation: gridMove 20s linear infinite;
+        }
+        @keyframes gridMove {
+            0% { transform: translateY(0) rotateX(60deg); }
+            100% { transform: translateY(50px) rotateX(60deg); }
         }
 
-        /* --- Layout: Sidebar + Main Content --- */
+        /* ==========================================================================
+           PRELOADER BOOT SEQUENCE
+           ========================================================================== */
+        #boot-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: 10000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-family: 'Fira Code', monospace; color: var(--cyan-core);
+            transition: opacity 1s ease-in-out, transform 1s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .boot-console { width: 80%; max-width: 600px; height: 300px; overflow: hidden; text-align: left; font-size: 0.9rem; line-height: 1.5; text-shadow: 0 0 5px var(--cyan-glow); }
+        .boot-spinner {
+            width: 100px; height: 100px; border: 2px solid transparent;
+            border-top-color: var(--cyan-core); border-bottom-color: var(--purple-core);
+            border-radius: 50%; animation: spinBoot 1s linear infinite; margin-bottom: 30px;
+            position: relative;
+        }
+        .boot-spinner::before {
+            content: ''; position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border: 2px solid transparent; border-left-color: var(--cyan-core); border-radius: 50%;
+            animation: spinBoot 0.5s linear infinite reverse;
+        }
+        @keyframes spinBoot { 100% { transform: rotate(360deg); } }
+        .loaded #boot-screen { opacity: 0; transform: scale(1.1); pointer-events: none; }
+
+        /* ==========================================================================
+           LAYOUT: HUD SIDEBAR & MAIN AREA
+           ========================================================================== */
         .sidebar {
-            width: 280px;
-            background: rgba(10, 10, 15, 0.7);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            width: 320px;
+            background: linear-gradient(180deg, var(--bg-hud) 0%, rgba(5,5,10,0.8) 100%);
+            backdrop-filter: blur(20px);
             border-right: 1px solid var(--border-glass);
-            display: flex;
-            flex-direction: column;
-            padding: 2.5rem 2rem;
+            display: flex; flex-direction: column;
+            padding: 3rem 2rem;
             z-index: 100;
-            box-shadow: 5px 0 30px rgba(0,0,0,0.5);
+            position: relative;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+        }
+        .sidebar::after {
+            content: ''; position: absolute; top: 0; right: 0; width: 1px; height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--cyan-core), transparent);
+            animation: scanline 4s linear infinite;
         }
 
         .main-content {
             flex: 1;
-            position: relative;
-            overflow-y: auto;
             padding: 4rem;
+            overflow-y: auto;
             scroll-behavior: smooth;
-            perspective: 1000px;
+            perspective: 1500px; /* Crucial for 3D cards */
         }
+        
+        /* Custom Scrollbar for Main */
+        .main-content::-webkit-scrollbar { width: 6px; }
+        .main-content::-webkit-scrollbar-track { background: transparent; }
+        .main-content::-webkit-scrollbar-thumb { background: var(--border-glass); border-radius: 10px; }
+        .main-content::-webkit-scrollbar-thumb:hover { background: var(--cyan-core); }
 
-        /* --- Sidebar Profile --- */
+        /* ==========================================================================
+           TYPOGRAPHY & GLITCH EFFECTS
+           ========================================================================== */
         .brand {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 3.5rem;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
-            animation: pulseText 3s infinite alternate;
+            font-size: 2.5rem; font-weight: 700;
+            margin-bottom: 1rem;
+            color: #fff;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        @keyframes pulseText {
-            0% { text-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
-            100% { text-shadow: 0 0 25px rgba(188, 19, 254, 0.6); }
+        /* Cyberpunk Glitch Effect on Brand */
+        .glitch { position: relative; }
+        .glitch::before, .glitch::after {
+            content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-base);
+        }
+        .glitch::before { left: 2px; text-shadow: -2px 0 red; clip: rect(24px, 550px, 90px, 0); animation: glitch-anim 3s infinite linear alternate-reverse; }
+        .glitch::after { left: -2px; text-shadow: -2px 0 blue; clip: rect(85px, 550px, 140px, 0); animation: glitch-anim 2s infinite linear alternate-reverse; }
+        @keyframes glitch-anim {
+            0% { clip: rect(15px, 9999px, 44px, 0); }
+            20% { clip: rect(89px, 9999px, 97px, 0); }
+            40% { clip: rect(32px, 9999px, 12px, 0); }
+            60% { clip: rect(100px, 9999px, 60px, 0); }
+            80% { clip: rect(4px, 9999px, 83px, 0); }
+            100% { clip: rect(66px, 9999px, 11px, 0); }
         }
 
+        .hud-subtitle { font-family: 'Fira Code'; font-size: 0.8rem; color: var(--cyan-core); letter-spacing: 4px; margin-bottom: 3rem; display: block; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;}
+
+        h1 { font-family: 'Space Grotesk'; font-size: 4rem; font-weight: 700; margin-bottom: 1rem; letter-spacing: -2px; background: linear-gradient(to right, #fff, var(--text-dim)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;}
+        h2 { font-family: 'Space Grotesk'; font-size: 2rem; color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 15px; }
+        h2 i { color: var(--cyan-core); text-shadow: 0 0 10px var(--cyan-glow); }
+        p { font-size: 1.1rem; line-height: 1.8; color: var(--text-dim); margin-bottom: 1.5rem; font-weight: 300;}
+
+        /* ==========================================================================
+           HUD NAVIGATION BUTTONS
+           ========================================================================== */
         .nav-btn {
-            background: transparent;
-            border: 1px solid transparent;
-            color: var(--text-muted);
-            text-align: left;
-            padding: 1.2rem;
-            margin-bottom: 0.8rem;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.1rem;
-            cursor: pointer;
-            border-radius: 12px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            position: relative;
-            overflow: hidden;
+            background: transparent; border: 1px solid transparent; color: var(--text-dim);
+            padding: 1.2rem; margin-bottom: 0.8rem; font-family: 'Space Grotesk'; font-size: 1.1rem;
+            text-transform: uppercase; letter-spacing: 2px;
+            display: flex; align-items: center; gap: 20px;
+            position: relative; overflow: hidden; transition: 0.4s;
+            clip-path: polygon(0 0, 95% 0, 100% 50%, 95% 100%, 0 100%);
         }
-
         .nav-btn::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            transition: 0.5s;
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.2), transparent);
+            transition: 0.5s; z-index: -1;
         }
+        .nav-btn:hover { color: #fff; transform: translateX(10px); }
         .nav-btn:hover::before { left: 100%; }
-        
-        .nav-btn:hover { 
-            color: white; 
-            background: rgba(255,255,255,0.03); 
-            transform: translateX(10px);
-            border-color: rgba(255,255,255,0.05);
-        }
-        
         .nav-btn.active {
-            background: linear-gradient(90deg, rgba(0, 243, 255, 0.15), transparent);
-            color: var(--accent-cyan);
-            border-left: 4px solid var(--accent-cyan);
-            box-shadow: -5px 0 15px var(--glow-cyan);
-            transform: translateX(15px);
+            background: rgba(0, 243, 255, 0.1); color: var(--cyan-core);
+            border-left: 4px solid var(--cyan-core);
+            box-shadow: inset 20px 0 20px -20px var(--cyan-glow);
+            clip-path: polygon(0 0, 100% 0, 95% 50%, 100% 100%, 0 100%);
         }
+        .nav-btn.active i { text-shadow: 0 0 15px var(--cyan-core); animation: pulseIcon 2s infinite; }
+        @keyframes pulseIcon { 50% { transform: scale(1.2); } }
 
-        /* --- Page Sections (The "Pages") --- */
-        .page-section {
-            display: none; 
-        }
-        .page-section.active { 
-            display: block; 
-            animation: entry3D 0.8s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-        }
+        /* ==========================================================================
+           PAGE SECTIONS & 3D ENTRY ANIMATIONS
+           ========================================================================== */
+        .page-section { display: none; opacity: 0; transform: translateZ(-200px) rotateY(10deg); transition: 0.8s cubic-bezier(0.19, 1, 0.22, 1); }
+        .page-section.active { display: block; opacity: 1; transform: translateZ(0) rotateY(0deg); }
 
-        @keyframes entry3D {
-            0% { opacity: 0; transform: rotateX(10deg) translateY(40px) scale(0.95); }
-            100% { opacity: 1; transform: rotateX(0deg) translateY(0) scale(1); }
-        }
-
-        /* --- Next Level Glass Cards --- */
+        /* ==========================================================================
+           3D TILT GLASS CARDS
+           ========================================================================== */
         .glass-panel {
-            background: var(--bg-panel);
+            background: var(--bg-card);
             border: 1px solid var(--border-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 3rem;
-            margin-bottom: 2.5rem;
-            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
-        }
-        
-        .glass-panel:hover {
-            transform: translateY(-8px);
-            background: var(--bg-panel-hover);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px var(--glow-purple), inset 0 1px 0 rgba(255,255,255,0.2);
-            border-color: rgba(188, 19, 254, 0.3);
-        }
-
-        h1 { font-family: 'Space Grotesk'; font-size: 3.5rem; margin-bottom: 1.2rem; letter-spacing: -1px; }
-        h2 { font-family: 'Space Grotesk'; color: var(--accent-cyan); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; font-size: 1.8rem; }
-        p { line-height: 1.9; color: #d1d5db; margin-bottom: 1.2rem; font-size: 1.05rem; }
-
-        /* --- Specific Elements --- */
-        .profile-header {
-            display: flex;
-            gap: 3rem;
-            align-items: center;
-        }
-        .profile-pic-container {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 15px; padding: 3rem; margin-bottom: 3rem;
             position: relative;
+            transform-style: preserve-3d;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            /* Tilt variables manipulated by JS */
+            transform: perspective(1000px) rotateX(var(--rotateX, 0)) rotateY(var(--rotateY, 0));
+            transition: transform 0.1s, box-shadow 0.4s, border-color 0.4s;
         }
-        .profile-pic-large {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid transparent;
-            background: linear-gradient(var(--bg-deep), var(--bg-deep)) padding-box,
-                        linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)) border-box;
-            box-shadow: 0 0 40px var(--glow-cyan);
-            transition: transform 0.6s ease, box-shadow 0.6s ease;
-            z-index: 2;
-            position: relative;
-        }
-        .profile-pic-container:hover .profile-pic-large {
-            transform: scale(1.05) rotate(5deg);
-            box-shadow: 0 0 60px var(--glow-purple);
-        }
-        /* Orbiting rings animation */
-        .orbit-ring {
-            position: absolute;
-            top: -15px; left: -15px; right: -15px; bottom: -15px;
-            border-radius: 50%;
-            border: 1px dashed rgba(255,255,255,0.2);
-            animation: spin 15s linear infinite;
-            pointer-events: none;
-        }
-        .orbit-ring::before {
-            content: ''; position: absolute;
-            top: 20px; left: 20px;
-            width: 10px; height: 10px;
-            background: var(--accent-cyan);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent-cyan);
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 2rem;
-        }
-        .stat-card {
-            background: rgba(255,255,255,0.02);
-            padding: 2rem;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-        .stat-card::after {
+        .glass-panel::before {
+            /* Dynamic Glare effect */
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, rgba(0, 243, 255, 0.1) 0%, transparent 70%);
-            opacity: 0; transition: opacity 0.4s ease; z-index: -1;
+            border-radius: 15px; pointer-events: none;
+            background: radial-gradient(circle at var(--mouseX, 50%) var(--mouseY, 50%), rgba(255,255,255,0.1) 0%, transparent 50%);
+            opacity: 0; transition: opacity 0.4s; z-index: 10;
         }
-        .stat-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-color: var(--accent-cyan);
-        }
-        .stat-card:hover::after { opacity: 1; }
-        .stat-number { font-size: 2.8rem; font-weight: 700; color: white; margin-bottom: 0.5rem; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
-        .stat-label { color: var(--accent-purple); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;}
-
-        /* --- Loader Animation --- */
-        #loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #020204; z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-            flex-direction: column;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
-        }
-        .loader-core {
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            border: 3px solid transparent;
-            border-top-color: var(--accent-cyan);
-            border-bottom-color: var(--accent-purple);
-            animation: loaderSpin 1.5s linear infinite;
-            margin-bottom: 30px;
-        }
-        .loader-core::after {
-            content: ''; position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;
-            border-radius: 50%; border: 2px solid transparent;
-            border-left-color: white; border-right-color: white;
-            animation: loaderSpin 1s ease-in-out infinite alternate-reverse;
-        }
-        @keyframes loaderSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .glass-panel:hover { border-color: rgba(0, 243, 255, 0.4); box-shadow: 0 30px 60px -10px rgba(0, 243, 255, 0.2); z-index: 10;}
+        .glass-panel:hover::before { opacity: 1; }
         
-        .loader-bar { width: 300px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
-        .loader-progress { width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); transition: width 2s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 0 10px var(--accent-cyan); }
+        /* Inner content needs to pop out */
+        .glass-panel > * { transform: translateZ(30px); }
 
-        /* --- Progress Bars in Academics --- */
-        .progress-track { width: 100%; height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden; margin-top: 15px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.8); }
-        .progress-fill { height: 100%; border-radius: 4px; transform-origin: left; animation: scaleXProgress 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-        @keyframes scaleXProgress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+        /* ==========================================================================
+           PROFILE & STATS UI
+           ========================================================================== */
+        .profile-container { display: flex; gap: 4rem; align-items: center; }
+        
+        .hologram-avatar {
+            position: relative; width: 220px; height: 220px;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+        }
+        .hologram-avatar img {
+            width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+            border: 2px solid var(--cyan-core); filter: grayscale(20%) contrast(120%);
+            z-index: 2; position: relative;
+        }
+        /* Rotating Tech Rings around Avatar */
+        .tech-ring { position: absolute; border-radius: 50%; border: 1px solid transparent; pointer-events: none; }
+        .ring-1 { width: 110%; height: 110%; border-top-color: var(--cyan-core); border-bottom-color: var(--purple-core); animation: spinRing 8s linear infinite; }
+        .ring-2 { width: 125%; height: 125%; border-left-color: rgba(255,255,255,0.3); border-right-color: rgba(255,255,255,0.3); border-style: dashed; animation: spinRing 15s linear infinite reverse; }
+        @keyframes spinRing { 100% { transform: rotate(360deg); } }
 
-        /* --- Mobile Responsive --- */
-        @media (max-width: 900px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; padding: 1.5rem; flex-direction: row; justify-content: space-between; align-items: center; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border-glass); }
-            .brand { margin-bottom: 0; font-size: 1.5rem; margin-right: 20px;}
-            .nav-btn span { display: none; } 
-            .nav-btn { margin: 0 5px; padding: 1rem; justify-content: center;}
-            .nav-btn.active { transform: translateY(-5px) translateX(0); border-left: none; border-bottom: 3px solid var(--accent-cyan); }
-            .main-content { padding: 2rem; }
-            .profile-header { flex-direction: column; text-align: center; }
-            h1 { font-size: 2.5rem; }
-            .orbit-ring { display: none; }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+        .stat-card {
+            background: rgba(0,0,0,0.4); padding: 2rem; border-radius: 10px;
+            border-top: 2px solid var(--cyan-core);
+            transform-style: preserve-3d;
+            transition: 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-10px) translateZ(20px); background: rgba(0,243,255,0.05); }
+        .stat-number { font-family: 'Space Grotesk'; font-size: 3.5rem; font-weight: 700; color: #fff; line-height: 1; margin-bottom: 10px; }
+        .stat-label { font-family: 'Fira Code'; font-size: 0.85rem; color: var(--cyan-core); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* ==========================================================================
+           SVG ANIMATED PROGRESS RINGS (ACADEMICS)
+           ========================================================================== */
+        .ring-container { display: flex; align-items: center; gap: 30px; margin-top: 20px;}
+        .svg-ring { width: 120px; height: 120px; transform: rotate(-90deg); filter: drop-shadow(0 0 10px var(--cyan-glow)); }
+        .ring-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 8; }
+        .ring-fill {
+            fill: none; stroke: url(#gradient); stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 314; /* 2 * pi * r (r=50) */
+            stroke-dashoffset: 314;
+            transition: stroke-dashoffset 2s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .active .ring-95 { stroke-dashoffset: 15.7; } /* 314 - (314 * 0.95) */
+        .active .ring-92 { stroke-dashoffset: 25.1; }
+        .active .ring-90 { stroke-dashoffset: 31.4; }
+        .ring-text { font-family: 'Space Grotesk'; font-size: 1.5rem; font-weight: bold; fill: #fff; transform: rotate(90deg) translate(0, 10px); text-anchor: middle;}
+
+        /* ==========================================================================
+           ASTRONOMY & TERMINAL (PERSONAL)
+           ========================================================================== */
+        .astro-card {
+            height: 300px; background-size: cover; background-position: center;
+            border-radius: 15px; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: flex-end; padding: 2rem;
+            border: 1px solid var(--border-glass);
+            transform-style: preserve-3d;
+        }
+        .astro-card::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); z-index: 1;}
+        .astro-card > * { z-index: 2; position: relative; transform: translateZ(40px); }
+        .astro-card h3 { font-family: 'Space Grotesk'; font-size: 2rem; margin-bottom: 5px; color: var(--cyan-core); }
+
+        .terminal-window {
+            background: #000; border: 1px solid #333; border-top: 25px solid #222;
+            border-radius: 10px; padding: 2rem; font-family: 'Fira Code', monospace;
+            position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+        .terminal-window::before {
+            content: 'TERMINAL - rijul@root:~'; position: absolute; top: -20px; left: 10px; color: #888; font-size: 0.7rem;
+        }
+        .typewriter-text { color: #0f0; line-height: 1.8; font-size: 0.95rem; }
+        .cursor-blink { display: inline-block; width: 8px; height: 15px; background: #0f0; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Thumb Throbbing Graphic */
+        .pulse-graphic {
+            position: relative; width: 80px; height: 80px; background: rgba(0,243,255,0.1); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; border: 1px solid var(--cyan-core);
+        }
+        .pulse-graphic::before, .pulse-graphic::after {
+            content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%;
+            border: 1px solid var(--cyan-core); animation: sonar 2s infinite ease-out;
+        }
+        .pulse-graphic::after { animation-delay: 1s; }
+        @keyframes sonar { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+
+        /* Mobile */
+        @media (max-width: 1024px) {
+            body { flex-direction: column; overflow-y: auto; overflow-x: hidden; }
+            .sidebar { width: 100%; padding: 2rem; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; border-right: none; border-bottom: 1px solid var(--border-glass); }
+            .brand { width: 100%; text-align: center; font-size: 2rem; }
+            .hud-subtitle { display: none; }
+            .nav-btn { flex: 1; min-width: 150px; justify-content: center; font-size: 0.9rem; padding: 1rem; margin: 0;}
+            .main-content { padding: 2rem; overflow: visible; }
+            .profile-container { flex-direction: column; text-align: center; }
+            h1 { font-size: 3rem; }
+            #cursor-dot, #cursor-ring { display: none; } /* Disable custom cursor on mobile */
+            * { cursor: auto; }
         }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="loader-core"></div>
-        <div style="font-family: 'Space Grotesk'; color: white; letter-spacing: 4px; margin-bottom: 15px; font-size: 0.9rem;">BOOTING RIJUL.OS</div>
-        <div class="loader-bar"><div class="loader-progress" id="progress"></div></div>
+    <!-- Custom Cursor -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
+
+    <!-- Backgrounds -->
+    <div class="hud-grid"></div>
+    <canvas id="starfield"></canvas>
+
+    <!-- Preloader Boot Sequence -->
+    <div id="boot-screen">
+        <div class="boot-spinner"></div>
+        <div class="boot-console" id="boot-text"></div>
     </div>
 
-    <div class="stars"></div>
-    <div id="particle-container"></div>
-
+    <!-- UI Sidebar -->
     <nav class="sidebar">
-        <div class="brand">RIJUL.OS</div>
+        <div>
+            <div class="brand glitch" data-text="RIJUL.OS">RIJUL.OS</div>
+            <span class="hud-subtitle">v2.4.9 // TACTICAL INTERFACE</span>
+        </div>
         
-        <button class="nav-btn active" onclick="switchPage('home')">
-            <i class="fas fa-home"></i> <span>Overview</span>
+        <button class="nav-btn active hover-target" onclick="switchPage('home')">
+            <i class="fas fa-satellite-dish"></i> <span>Overview</span>
         </button>
-        <button class="nav-btn" onclick="switchPage('academics')">
-            <i class="fas fa-graduation-cap"></i> <span>Academics</span>
+        <button class="nav-btn hover-target" onclick="switchPage('academics')">
+            <i class="fas fa-brain"></i> <span>Academics</span>
         </button>
-        <button class="nav-btn" onclick="switchPage('astronomy')">
-            <i class="fas fa-satellite"></i> <span>Astronomy</span>
+        <button class="nav-btn hover-target" onclick="switchPage('astronomy')">
+            <i class="fas fa-meteor"></i> <span>Astronomy</span>
         </button>
-        <button class="nav-btn" onclick="switchPage('personal')">
-            <i class="fas fa-dna"></i> <span>Traits & Config</span>
+        <button class="nav-btn hover-target" onclick="switchPage('personal')">
+            <i class="fas fa-fingerprint"></i> <span>Identity</span>
         </button>
     </nav>
 
-    <main class="main-content">
+    <!-- Main Content Area -->
+    <main class="main-content" id="main-scroll">
+        
+        <!-- SVG Gradient Definition for Rings -->
+        <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
+            <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#00f3ff" />
+                    <stop offset="100%" stop-color="#bc13fe" />
+                </linearGradient>
+            </defs>
+        </svg>
 
+        <!-- SECTION: HOME -->
         <section id="home" class="page-section active">
-            <div class="glass-panel profile-header">
-                <div class="profile-pic-container">
-                    <div class="orbit-ring"></div>
-                    <img src="https://i.ibb.co/CpgLn9vs/Rijul-Portrait.jpg" alt="Rijul Portrait" class="profile-pic-large">
-                </div>
-                <div>
-                    <h4 style="color: var(--accent-purple); letter-spacing: 3px; font-weight: 600; font-size: 0.85rem; margin-bottom: 10px;">STUDENT • EXPLORER • ASTRONOMER</h4>
-                    <h1>Rijul Kishore</h1>
-                    <p>A 8th-standard student at Rani Laxmi Bai Public School with a high-performance academic record and a deep passion for the cosmos. Bridging the gap between books, biology, and the stars.</p>
-                    
-                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
-                        <span style="background: rgba(0, 243, 255, 0.1); color: var(--accent-cyan); padding: 8px 20px; border-radius: 30px; font-size: 0.95rem; border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 10px rgba(0,243,255,0.1);">
-                            <i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i> Jhansi, UP
-                        </span>
-                        <span style="background: rgba(188, 19, 254, 0.1); color: var(--accent-purple); padding: 8px 20px; border-radius: 30px; font-size: 0.95rem; border: 1px solid rgba(188, 19, 254, 0.3); box-shadow: 0 0 10px rgba(188,19,254,0.1);">
-                            <i class="fas fa-clock" style="margin-right: 8px;"></i> Age 13
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-panel">
-                <h2><i class="fas fa-microchip"></i> System Status</h2>
-                <div class="stat-grid">
-                    <div class="stat-card">
-                        <div class="stat-number">VIII</div>
-                        <div class="stat-label">Standard Level</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" style="color: var(--accent-cyan);">90<span style="font-size: 1.5rem;">%+</span></div>
-                        <div class="stat-label">Academic Output</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" style="color: var(--accent-purple);">4<span style="font-size: 1.5rem;">+</span></div>
-                        <div class="stat-label">Core Interests</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="academics" class="page-section">
-            <div class="glass-panel">
-                <h1>Academic Excellence</h1>
-                <p>Consistent high achiever at Rani Laxmi Bai Public School, processing complex information and maintaining a score record of 90% and above.</p>
-            </div>
-
-            <div class="stat-grid">
-                <div class="glass-panel" style="margin-bottom: 0; padding: 2rem;">
-                    <h2><i class="fas fa-calculator"></i> Mathematics</h2>
-                    <p style="font-size: 0.9rem;">Advanced problem solving and analytical logic structure.</p>
-                    <div class="progress-track">
-                        <div class="progress-fill" style="width: 95%; background: linear-gradient(90deg, #0055ff, var(--accent-cyan)); box-shadow: 0 0 10px var(--accent-cyan);"></div>
-                    </div>
-                </div>
-                <div class="glass-panel" style="margin-bottom: 0; padding: 2rem;">
-                    <h2><i class="fas fa-flask"></i> Science</h2>
-                    <p style="font-size: 0.9rem;">Deep interest in Physics, Biology, and Astronomy metrics.</p>
-                    <div class="progress-track">
-                        <div class="progress-fill" style="width: 92%; background: linear-gradient(90deg, #5500ff, var(--accent-purple)); box-shadow: 0 0 10px var(--accent-purple);"></div>
-                    </div>
-                </div>
-                <div class="glass-panel" style="margin-bottom: 0; padding: 2rem;">
-                    <h2><i class="fas fa-globe-asia"></i> Soc. Studies</h2>
-                    <p style="font-size: 0.9rem;">Understanding History, Geography, and geopolitical structures.</p>
-                    <div class="progress-track">
-                        <div class="progress-fill" style="width: 90%; background: linear-gradient(90deg, #555, #fff); box-shadow: 0 0 10px #fff;"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="astronomy" class="page-section">
-            <div class="glass-panel" style="border: 1px solid rgba(188, 19, 254, 0.4); box-shadow: 0 0 30px rgba(188, 19, 254, 0.1) inset;">
-                <h1 style="background: linear-gradient(to right, var(--text-main), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Cosmic Exploration</h1>
-                <p>My fascination extends beyond the Earth. Astronomy represents the ultimate frontier of human curiosity. I spend my time studying celestial bodies, understanding the physics of black holes, and tracking constellations in the night sky.</p>
-            </div>
-
-            <div class="stat-grid">
-                <div class="stat-card" style="background-image: linear-gradient(rgba(10,10,20,0.8), rgba(10,10,20,0.9)), url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'); background-size: cover; background-position: center; border-color: rgba(0, 243, 255, 0.3); height: 250px; display: flex; flex-direction: column; justify-content: flex-end;">
-                    <i class="fas fa-star" style="font-size: 2rem; color: var(--accent-cyan); margin-bottom: auto;"></i>
-                    <h3 style="color: white; font-family: 'Space Grotesk'; font-size: 1.5rem; margin-bottom: 5px;">The Deep Field</h3>
-                    <p style="font-size: 0.9rem; color: #aaa; margin: 0;">Analyzing Nebulas & Distant Galaxies.</p>
-                </div>
-                <div class="stat-card" style="background-image: linear-gradient(rgba(10,10,20,0.8), rgba(10,10,20,0.9)), url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'); background-size: cover; background-position: center; border-color: rgba(188, 19, 254, 0.3); height: 250px; display: flex; flex-direction: column; justify-content: flex-end;">
-                    <i class="fas fa-rocket" style="font-size: 2rem; color: var(--accent-purple); margin-bottom: auto;"></i>
-                    <h3 style="color: white; font-family: 'Space Grotesk'; font-size: 1.5rem; margin-bottom: 5px;">Orbital Physics</h3>
-                    <p style="font-size: 0.9rem; color: #aaa; margin: 0;">Gravity, Orbits, and Rocketry principles.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="personal" class="page-section">
-            <div class="glass-panel">
-                <h1>Traits & Configuration</h1>
-                <p>Beyond academics, my underlying genetic and behavioral programming possess specific unique configurations.</p>
-            </div>
-
-            <div class="glass-panel" style="position: relative; overflow: hidden;">
-                <div style="position: absolute; right: -20px; top: -20px; font-size: 10rem; opacity: 0.05; color: var(--accent-cyan); pointer-events: none;"><i class="fas fa-fingerprint"></i></div>
-                <h2><i class="fas fa-dna"></i> Unique Biological Trait</h2>
-                <div style="display: flex; align-items: flex-start; gap: 25px; position: relative; z-index: 2;">
-                    <div style="background: rgba(0,243,255,0.1); padding: 20px; border-radius: 20px; border: 1px solid rgba(0,243,255,0.2);">
-                        <i class="fas fa-hand-paper" style="font-size: 2.5rem; color: var(--accent-cyan); animation: floatParticle 3s infinite alternate;"></i>
+            <div class="glass-panel tilt-card">
+                <div class="profile-container">
+                    <div class="hologram-avatar hover-target">
+                        <div class="tech-ring ring-1"></div>
+                        <div class="tech-ring ring-2"></div>
+                        <img src="https://i.ibb.co/CpgLn9vs/Rijul-Portrait.jpg" alt="Rijul Kishore">
                     </div>
                     <div>
-                        <h3 style="margin-bottom: 0.8rem; font-family: 'Space Grotesk'; font-size: 1.3rem;">Voluntary Thenar Muscle Control</h3>
-                        <p style="margin-bottom: 0; font-size: 0.95rem; line-height: 1.7;">Commonly known as <strong>"Thumb Throbbing"</strong>. I possess the rare ability to voluntarily vibrate/throb the muscles in my thumb without moving the rest of the hand. This indicates unusually high fine-motor control and neuromuscular awareness.</p>
+                        <div style="display: inline-block; padding: 5px 15px; background: rgba(188, 19, 254, 0.1); border: 1px solid var(--purple-core); color: var(--purple-core); font-family: 'Fira Code'; font-size: 0.8rem; margin-bottom: 15px; border-radius: 20px;">
+                            STATUS: ONLINE
+                        </div>
+                        <h1>Rijul Kishore</h1>
+                        <p>Eighth-standard operative at Rani Laxmi Bai Public School. Processing advanced academic algorithms with a core directive focused on cosmological exploration. Bridging terrestrial biology and interstellar physics.</p>
+                        
+                        <div style="display: flex; gap: 15px; margin-top: 20px;">
+                            <span style="font-family: 'Fira Code'; font-size: 0.9rem; color: var(--cyan-core);">
+                                <i class="fas fa-crosshairs"></i> LOC: JHANSI_UP
+                            </span>
+                            <span style="font-family: 'Fira Code'; font-size: 0.9rem; color: var(--purple-core);">
+                                <i class="fas fa-clock"></i> CYCLE: 13_YRS
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="stat-grid">
-                <div class="glass-panel" style="background: rgba(5,5,8,0.9); font-family: 'Courier New', monospace; border: 1px solid rgba(0,255,0,0.2); box-shadow: 0 0 20px rgba(0,255,0,0.05);">
-                    <div style="color: #0f0; margin-bottom: 1rem; font-weight: bold;">root@rijul:~/context$ cat current_address.txt</div>
-                    <div style="color: #aaa; line-height: 2;">
-                        > <span style="color: white;">Loc:</span> Karguwan, Uttar Pradesh, India<br>
-                        > <span style="color: white;">Inst:</span> Rani Laxmi Bai Public School, Jhansi<br>
-                        > <span style="color: white;">Comm:</span> [Awaiting Handshake Protocol]
+            <div class="glass-panel tilt-card">
+                <h2><i class="fas fa-chart-network"></i> System Diagnostics</h2>
+                <div class="stat-grid">
+                    <div class="stat-card hover-target">
+                        <div class="stat-number">VIII</div>
+                        <div class="stat-label">Clearance Level</div>
+                    </div>
+                    <div class="stat-card hover-target">
+                        <div class="stat-number" style="color: var(--cyan-core);">90<span style="font-size: 2rem;">%</span></div>
+                        <div class="stat-label">Efficiency Index</div>
+                    </div>
+                    <div class="stat-card hover-target">
+                        <div class="stat-number" style="color: var(--purple-core);">04<span style="font-size: 2rem;">+</span></div>
+                        <div class="stat-label">Active Modules</div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ACADEMICS -->
+        <section id="academics" class="page-section">
+            <div class="glass-panel tilt-card">
+                <h1 class="glitch" data-text="Academic Database">Academic Database</h1>
+                <p>Executing high-performance cognitive tasks at Rani Laxmi Bai Public School. Consistent data retrieval and logic processing yielding >90% success rate.</p>
+            </div>
+
+            <div class="stat-grid">
+                <div class="glass-panel tilt-card" style="padding: 2rem;">
+                    <h2><i class="fas fa-square-root-variable"></i> Mathematics</h2>
+                    <p style="font-size: 0.95rem;">Advanced problem solving and structural logic processing.</p>
+                    <div class="ring-container">
+                        <svg class="svg-ring"><circle cx="60" cy="60" r="50" class="ring-bg"></circle><circle cx="60" cy="60" r="50" class="ring-fill ring-95"></circle><text x="60" y="60" class="ring-text" dominant-baseline="middle">95</text></svg>
+                        <span style="font-family: 'Fira Code'; color: var(--cyan-core);">// PARAMETER_MAX</span>
+                    </div>
+                </div>
+                
+                <div class="glass-panel tilt-card" style="padding: 2rem;">
+                    <h2><i class="fas fa-atom"></i> Science</h2>
+                    <p style="font-size: 0.95rem;">Physics, Biological systems, and Cosmological metrics.</p>
+                    <div class="ring-container">
+                        <svg class="svg-ring"><circle cx="60" cy="60" r="50" class="ring-bg"></circle><circle cx="60" cy="60" r="50" class="ring-fill ring-92"></circle><text x="60" y="60" class="ring-text" dominant-baseline="middle">92</text></svg>
+                        <span style="font-family: 'Fira Code'; color: var(--cyan-core);">// HIGH_YIELD</span>
+                    </div>
+                </div>
+
+                <div class="glass-panel tilt-card" style="padding: 2rem;">
+                    <h2><i class="fas fa-earth-asia"></i> Soc. Studies</h2>
+                    <p style="font-size: 0.95rem;">Geopolitical mapping and historical data architecture.</p>
+                    <div class="ring-container">
+                        <svg class="svg-ring"><circle cx="60" cy="60" r="50" class="ring-bg"></circle><circle cx="60" cy="60" r="50" class="ring-fill ring-90"></circle><text x="60" y="60" class="ring-text" dominant-baseline="middle">90</text></svg>
+                        <span style="font-family: 'Fira Code'; color: var(--cyan-core);">// OPTIMAL</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ASTRONOMY -->
+        <section id="astronomy" class="page-section">
+            <div class="glass-panel tilt-card">
+                <h1 style="background: linear-gradient(to right, var(--cyan-core), var(--purple-core)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Cosmological Directives</h1>
+                <p>Sensor arrays pointed towards the deep field. Astronomy represents the ultimate frontier of this unit's curiosity. Primary processing power is dedicated to celestial mechanics, singularity physics, and stellar mapping.</p>
+            </div>
+
+            <div class="stat-grid">
+                <div class="astro-card tilt-card hover-target" style="background-image: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80');">
+                    <div style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); padding: 5px; border: 1px solid var(--cyan-core); color: var(--cyan-core); font-family: 'Fira Code'; font-size: 0.7rem;">OBJ: NGC-224</div>
+                    <h3>Deep Field Scan</h3>
+                    <p style="font-size: 0.95rem; margin: 0; color: #cbd5e1;">Analyzing nebular compositions and galactic superclusters.</p>
+                </div>
+                
+                <div class="astro-card tilt-card hover-target" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80');">
+                    <div style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); padding: 5px; border: 1px solid var(--purple-core); color: var(--purple-core); font-family: 'Fira Code'; font-size: 0.7rem;">PHYS: ORB-99</div>
+                    <h3 style="color: var(--purple-core);">Orbital Mechanics</h3>
+                    <p style="font-size: 0.95rem; margin: 0; color: #cbd5e1;">Calculating gravitational wells, trajectories, and rocketry propulsion.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: PERSONAL -->
+        <section id="personal" class="page-section">
+            <div class="glass-panel tilt-card">
+                <h1>Identity Matrix</h1>
+                <p>Accessing underlying genetic traits, behavioral subroutines, and physical location data.</p>
+            </div>
+
+            <div class="glass-panel tilt-card">
+                <h2><i class="fas fa-dna"></i> Genetic Anomaly Detected</h2>
+                <div style="display: flex; align-items: center; gap: 30px; margin-top: 20px;">
+                    <div class="pulse-graphic hover-target">
+                        <i class="fas fa-hand-sparkles" style="font-size: 2rem; color: var(--cyan-core); z-index: 5;"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-family: 'Space Grotesk'; font-size: 1.5rem; margin-bottom: 10px;">Voluntary Thenar Isolation</h3>
+                        <p style="margin: 0; font-size: 1rem;">Colloquially known as "Thumb Throbbing". This biological hardware allows for the isolated, voluntary vibration of the thenar eminence without affecting adjacent musculature. Indicates extreme neuromuscular fidelity and high-tier fine motor control.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Terminal Typing -->
+            <div class="terminal-window hover-target">
+                <div class="typewriter-text" id="terminal-text"></div><div class="cursor-blink"></div>
             </div>
         </section>
 
     </main>
 
+    <!-- ==========================================================================
+         JAVASCRIPT LOGIC ENGINE
+         ========================================================================== -->
     <script>
-        // 1. Loader Animation Script
-        window.addEventListener('load', () => {
-            const progress = document.getElementById('progress');
-            const loader = document.getElementById('loader');
-            
-            // Initiate progress fill
-            setTimeout(() => { progress.style.width = '100%'; }, 100);
-            
-            // Remove loader after animation finishes
-            setTimeout(() => {
-                loader.style.opacity = '0';
-                loader.style.visibility = 'hidden';
-                
-                // Initialize the 115 particle animations only after loading is done to prevent lag
-                generateParticles();
-            }, 2200);
+        // --------------------------------------------------------
+        // 1. CUSTOM MAGNETIC CURSOR
+        // --------------------------------------------------------
+        const cursorDot = document.getElementById('cursor-dot');
+        const cursorRing = document.getElementById('cursor-ring');
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let ringX = mouseX;
+        let ringY = mouseY;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            // Immediate dot update
+            cursorDot.style.transform = `translate(calc(${mouseX}px - 50%), calc(${mouseY}px - 50%))`;
         });
 
-        // 2. Generate exactly 115 dynamic background particle animations
-        function generateParticles() {
-            const container = document.getElementById('particle-container');
-            const particleCount = 115;
-            const colors = ['var(--accent-cyan)', 'var(--accent-purple)', '#ffffff'];
-            
-            for (let i = 0; i < particleCount; i++) {
-                let particle = document.createElement('div');
-                particle.classList.add('particle');
-                
-                // Randomize properties for unique animations
-                const size = Math.random() * 4 + 1; // 1px to 5px
-                const posX = Math.random() * 100; // 0vw to 100vw
-                const posY = Math.random() * 100; // 0vh to 100vh
-                const animDuration = Math.random() * 5 + 3; // 3s to 8s
-                const animDelay = Math.random() * 5; // 0s to 5s delay
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                
-                // Apply styles
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                particle.style.left = `${posX}vw`;
-                particle.style.top = `${posY}vh`;
-                particle.style.backgroundColor = color;
-                particle.style.boxShadow = `0 0 ${size * 2}px ${color}`;
-                particle.style.animationDuration = `${animDuration}s`;
-                particle.style.animationDelay = `${animDelay}s`;
-                
-                container.appendChild(particle);
+        // Smooth follow for the ring (Linear Interpolation)
+        function animateCursor() {
+            let dx = mouseX - ringX;
+            let dy = mouseY - ringY;
+            ringX += dx * 0.15; // Speed of following
+            ringY += dy * 0.15;
+            cursorRing.style.transform = `translate(calc(${ringX}px - 50%), calc(${ringY}px - 50%))`;
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Magnetic Hover Effect
+        const hoverTargets = document.querySelectorAll('.hover-target, .nav-btn, .tilt-card');
+        hoverTargets.forEach(target => {
+            target.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+            target.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+        });
+
+        // --------------------------------------------------------
+        // 2. INTERACTIVE CANVAS STARFIELD (Warp Effect)
+        // --------------------------------------------------------
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let stars = [];
+        const numStars = 800; // Dense field
+        let speed = 0.5; // Base speed
+        let targetSpeed = 0.5;
+
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Star {
+            constructor() {
+                this.x = (Math.random() - 0.5) * width * 2;
+                this.y = (Math.random() - 0.5) * height * 2;
+                this.z = Math.random() * width;
+                this.pz = this.z;
+            }
+            update() {
+                this.z -= speed; // Move towards viewer
+                if (this.z < 1) { // Reset if past screen
+                    this.z = width;
+                    this.x = (Math.random() - 0.5) * width * 2;
+                    this.y = (Math.random() - 0.5) * height * 2;
+                    this.pz = this.z;
+                }
+            }
+            draw() {
+                // Project 3D to 2D
+                let sx = (this.x / this.z) * width + width / 2;
+                let sy = (this.y / this.z) * height + height / 2;
+                let r = (1 - this.z / width) * 2; // Size based on depth
+
+                // Draw trail for warp effect
+                let px = (this.x / this.pz) * width + width / 2;
+                let py = (this.y / this.pz) * height + height / 2;
+                this.pz = this.z;
+
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(0, 243, 255, ${1 - this.z/width})`;
+                ctx.lineWidth = r;
+                ctx.moveTo(px, py);
+                ctx.lineTo(sx, sy);
+                ctx.stroke();
             }
         }
 
-        // 3. Navigation Script (SPA Logic with transition resets)
-        function switchPage(pageId) {
-            const sections = document.querySelectorAll('.page-section');
-            const buttons = document.querySelectorAll('.nav-btn');
+        for (let i = 0; i < numStars; i++) stars.push(new Star());
+
+        function animateStars() {
+            ctx.fillStyle = 'rgba(3, 3, 5, 0.3)'; // Trail effect
+            ctx.fillRect(0, 0, width, height);
             
-            // Remove active classes
-            sections.forEach(section => {
-                section.classList.remove('active');
-                // Force reflow to restart CSS animations on re-entry
-                void section.offsetWidth; 
+            // Smooth speed interpolation
+            speed += (targetSpeed - speed) * 0.05;
+
+            // Pan slightly based on mouse
+            let panX = (mouseX - width/2) * 0.0005;
+            let panY = (mouseY - height/2) * 0.0005;
+
+            stars.forEach(star => {
+                star.x -= panX * star.z;
+                star.y -= panY * star.z;
+                star.update();
+                star.draw();
             });
-            buttons.forEach(btn => btn.classList.remove('active'));
+            requestAnimationFrame(animateStars);
+        }
+        animateStars();
 
-            // Add active class to targeted section
+        // Warp effect on mousedown
+        window.addEventListener('mousedown', () => targetSpeed = 25);
+        window.addEventListener('mouseup', () => targetSpeed = 0.5);
+        window.addEventListener('touchstart', () => targetSpeed = 25);
+        window.addEventListener('touchend', () => targetSpeed = 0.5);
+
+        // --------------------------------------------------------
+        // 3. 3D TILT CARDS (Dynamic Glare & Rotation)
+        // --------------------------------------------------------
+        const cards = document.querySelectorAll('.tilt-card');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Calculate rotation (-10 to 10 degrees)
+                const xPct = (x / rect.width - 0.5) * 2;
+                const yPct = (y / rect.height - 0.5) * 2;
+                
+                card.style.setProperty('--rotateX', `${-yPct * 10}deg`);
+                card.style.setProperty('--rotateY', `${xPct * 10}deg`);
+                
+                // Set glare position
+                card.style.setProperty('--mouseX', `${(x / rect.width) * 100}%`);
+                card.style.setProperty('--mouseY', `${(y / rect.height) * 100}%`);
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.setProperty('--rotateX', '0deg');
+                card.style.setProperty('--rotateY', '0deg');
+            });
+        });
+
+        // --------------------------------------------------------
+        // 4. BOOT SEQUENCE & TYPEWRITER
+        // --------------------------------------------------------
+        const bootTextLines = [
+            "Initializing BIOS...",
+            "Loading Kernel [OK]",
+            "Mounting file systems [OK]",
+            "Establishing neural link... [ESTABLISHED]",
+            "Bypassing security protocols...",
+            "Decrypting Rijul.OS profile...",
+            "Welcome, User. Access Granted."
+        ];
+        
+        async function runBootSequence() {
+            const bootContainer = document.getElementById('boot-text');
+            for(let i=0; i < bootTextLines.length; i++) {
+                bootContainer.innerHTML += `> ${bootTextLines[i]}<br>`;
+                await new Promise(r => setTimeout(r, Math.random() * 300 + 200));
+            }
+            
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+                // Trigger SVG animations on home page
+                switchPage('home');
+            }, 500);
+        }
+        
+        window.onload = runBootSequence;
+
+        // Terminal text typing logic (for Personal page)
+        const terminalString = `Fetching physical coordinates...\n[LOC] Karguwan, Uttar Pradesh, India\n\nFetching educational server...\n[SERVER] Rani Laxmi Bai Public School, Jhansi\n\nEstablishing secure comms channel...\n[EMAIL] Pending encryption handshake...`;
+        let typed = false;
+
+        function typeTerminal() {
+            if (typed) return;
+            typed = true;
+            const termEl = document.getElementById('terminal-text');
+            termEl.innerHTML = '';
+            let i = 0;
+            function typeChar() {
+                if (i < terminalString.length) {
+                    if (terminalString.charAt(i) === '\n') {
+                        termEl.innerHTML += '<br>';
+                    } else {
+                        termEl.innerHTML += terminalString.charAt(i);
+                    }
+                    i++;
+                    setTimeout(typeChar, Math.random() * 50 + 10); // Random typing speed
+                }
+            }
+            typeChar();
+        }
+
+        // --------------------------------------------------------
+        // 5. HUD NAVIGATION LOGIC (SPA)
+        // --------------------------------------------------------
+        function switchPage(pageId) {
+            // Remove active from all
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Add active to targeted
             document.getElementById(pageId).classList.add('active');
+            
+            // Map ID to button index (could be optimized, but works fine for 4 buttons)
+            const map = {'home': 0, 'academics': 1, 'astronomy': 2, 'personal': 3};
+            document.querySelectorAll('.nav-btn')[map[pageId]].classList.add('active');
 
-            // Add active class to corresponding button
-            const btnMap = { 'home': 0, 'academics': 1, 'astronomy': 2, 'personal': 3 };
-            buttons[btnMap[pageId]].classList.add('active');
+            // Reset scroll
+            document.getElementById('main-scroll').scrollTop = 0;
+
+            // Trigger specific page animations
+            if(pageId === 'personal') {
+                setTimeout(typeTerminal, 800); // Wait for page transition to finish
+            }
         }
     </script>
 </body>
